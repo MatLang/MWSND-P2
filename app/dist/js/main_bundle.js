@@ -1,9 +1,7 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Common database helper functions.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _idb = require('idb');
 
@@ -12,6 +10,10 @@ var _idb2 = _interopRequireDefault(_idb);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Common database helper functions.
+ */
 
 var DBHelper = function () {
   function DBHelper() {
@@ -244,8 +246,16 @@ var DBHelper = function () {
   return DBHelper;
 }();
 
-},{"idb":4}],2:[function(require,module,exports){
+module.exports = DBHelper;
+
+},{"idb":3}],2:[function(require,module,exports){
 'use strict';
+
+var _dbhelper = require('./dbhelper');
+
+var _dbhelper2 = _interopRequireDefault(_dbhelper);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var restaurants = void 0,
     neighborhoods = void 0,
@@ -265,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
  * Fetch all neighborhoods and set their HTML.
  */
 fetchNeighborhoods = function fetchNeighborhoods() {
-  DBHelper.fetchNeighborhoods(function (error, neighborhoods) {
+  _dbhelper2.default.fetchNeighborhoods(function (error, neighborhoods) {
     if (error) {
       // Got an error
       console.error(error);
@@ -295,7 +305,7 @@ fillNeighborhoodsHTML = function fillNeighborhoodsHTML() {
  * Fetch all cuisines and set their HTML.
  */
 fetchCuisines = function fetchCuisines() {
-  DBHelper.fetchCuisines(function (error, cuisines) {
+  _dbhelper2.default.fetchCuisines(function (error, cuisines) {
     if (error) {
       // Got an error!
       console.error(error);
@@ -351,7 +361,7 @@ updateRestaurants = function updateRestaurants() {
   var cuisine = cSelect[cIndex].value;
   var neighborhood = nSelect[nIndex].value;
 
-  DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, function (error, restaurants) {
+  _dbhelper2.default.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, function (error, restaurants) {
     if (error) {
       // Got an error!
       console.error(error);
@@ -403,7 +413,7 @@ createRestaurantHTML = function createRestaurantHTML(restaurant, tabIndex) {
   var image = document.createElement('img');
   image.className = 'restaurant-img';
   image.tabIndex = 0;
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.src = _dbhelper2.default.imageUrlForRestaurant(restaurant);
   image.alt = '';
   li.append(image);
 
@@ -423,7 +433,7 @@ createRestaurantHTML = function createRestaurantHTML(restaurant, tabIndex) {
   more.innerHTML = 'View Details';
   more.setAttribute('tabIndex', tabIndex.toString());
   more.setAttribute('aria-label', 'Details for' + restaurant.name);
-  more.href = DBHelper.urlForRestaurant(restaurant);
+  more.href = _dbhelper2.default.urlForRestaurant(restaurant);
   li.append(more);
 
   return li;
@@ -437,7 +447,7 @@ addMarkersToMap = function addMarkersToMap() {
 
   restaurants.forEach(function (restaurant) {
     // Add marker to the map
-    var marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);
+    var marker = _dbhelper2.default.mapMarkerForRestaurant(restaurant, self.map);
     google.maps.event.addListener(marker, 'click', function () {
       window.location.href = marker.url;
     });
@@ -445,184 +455,7 @@ addMarkersToMap = function addMarkersToMap() {
   });
 };
 
-},{}],3:[function(require,module,exports){
-'use strict';
-
-var restaurant = void 0;
-var map;
-
-/**
- * Initialize Google map, called from HTML.
- */
-window.initMap = function () {
-  fetchRestaurantFromURL(function (error, restaurant) {
-    if (error) {
-      // Got an error!
-      console.error(error);
-    } else {
-      self.map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 16,
-        center: restaurant.latlng,
-        scrollwheel: false
-      });
-      fillBreadcrumb();
-      DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
-    }
-  });
-};
-
-/**
- * Get current restaurant from page URL.
- */
-fetchRestaurantFromURL = function fetchRestaurantFromURL(callback) {
-  if (self.restaurant) {
-    // restaurant already fetched!
-    callback(null, self.restaurant);
-    return;
-  }
-  var id = getParameterByName('id');
-  if (!id) {
-    // no id found in URL
-    error = 'No restaurant id in URL';
-    callback(error, null);
-  } else {
-    DBHelper.fetchRestaurantById(id, function (error, restaurant) {
-      self.restaurant = restaurant;
-      if (!restaurant) {
-        console.error(error);
-        return;
-      }
-      fillRestaurantHTML();
-      callback(null, restaurant);
-    });
-  }
-};
-
-/**
- * Create restaurant HTML and add it to the webpage
- */
-fillRestaurantHTML = function fillRestaurantHTML() {
-  var restaurant = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : self.restaurant;
-
-  var name = document.getElementById('restaurant-name');
-  name.innerHTML = restaurant.name;
-
-  var address = document.getElementById('restaurant-address');
-  address.innerHTML = restaurant.address;
-
-  var image = document.getElementById('restaurant-img');
-  image.className = 'restaurant-img';
-  image.alt = "Picture of restaurant: " + restaurant.name;
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
-
-  var cuisine = document.getElementById('restaurant-cuisine');
-  cuisine.innerHTML = restaurant.cuisine_type;
-
-  // fill operating hours
-  if (restaurant.operating_hours) {
-    fillRestaurantHoursHTML();
-  }
-  // fill reviews
-  fillReviewsHTML();
-};
-
-/**
- * Create restaurant operating hours HTML table and add it to the webpage.
- */
-fillRestaurantHoursHTML = function fillRestaurantHoursHTML() {
-  var operatingHours = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : self.restaurant.operating_hours;
-
-  var hours = document.getElementById('restaurant-hours');
-  for (var key in operatingHours) {
-    var row = document.createElement('tr');
-
-    var day = document.createElement('td');
-    day.innerHTML = key;
-    row.appendChild(day);
-
-    var time = document.createElement('td');
-    time.innerHTML = operatingHours[key];
-    row.appendChild(time);
-
-    hours.appendChild(row);
-  }
-};
-
-/**
- * Create all reviews HTML and add them to the webpage.
- */
-fillReviewsHTML = function fillReviewsHTML() {
-  var reviews = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : self.restaurant.reviews;
-
-  var container = document.getElementById('reviews-container');
-  var title = document.createElement('h3');
-  title.innerHTML = 'Reviews';
-  container.appendChild(title);
-
-  if (!reviews) {
-    var noReviews = document.createElement('p');
-    noReviews.innerHTML = 'No reviews yet!';
-    container.appendChild(noReviews);
-    return;
-  }
-  var ul = document.getElementById('reviews-list');
-  reviews.forEach(function (review) {
-    ul.appendChild(createReviewHTML(review));
-  });
-  container.appendChild(ul);
-};
-
-/**
- * Create review HTML and add it to the webpage.
- */
-createReviewHTML = function createReviewHTML(review) {
-  var li = document.createElement('li');
-  var name = document.createElement('p');
-  name.innerHTML = review.name;
-  li.appendChild(name);
-
-  var date = document.createElement('p');
-  date.innerHTML = review.date;
-  li.appendChild(date);
-
-  var rating = document.createElement('p');
-  rating.innerHTML = 'Rating: ' + review.rating;
-  li.appendChild(rating);
-
-  var comments = document.createElement('p');
-  comments.innerHTML = review.comments;
-  li.appendChild(comments);
-
-  return li;
-};
-
-/**
- * Add restaurant name to the breadcrumb navigation menu
- */
-fillBreadcrumb = function fillBreadcrumb() {
-  var restaurant = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : self.restaurant;
-
-  var breadcrumb = document.getElementById('breadcrumb');
-  var li = document.createElement('li');
-  li.innerHTML = restaurant.name;
-  li.setAttribute('aria-current', 'page');
-  breadcrumb.appendChild(li);
-};
-
-/**
- * Get a parameter by name from page URL.
- */
-getParameterByName = function getParameterByName(name, url) {
-  if (!url) url = window.location.href;
-  name = name.replace(/[\[\]]/g, '\\$&');
-  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-      results = regex.exec(url);
-  if (!results) return null;
-  if (!results[2]) return '';
-  return decodeURIComponent(results[2].replace(/\+/g, ' '));
-};
-
-},{}],4:[function(require,module,exports){
+},{"./dbhelper":1}],3:[function(require,module,exports){
 'use strict';
 
 (function() {
@@ -935,4 +768,6 @@ getParameterByName = function getParameterByName(name, url) {
   }
 }());
 
-},{}]},{},[2,1,3]);
+},{}]},{},[2,1]);
+
+//# sourceMappingURL=maps/main_bundle.js.map

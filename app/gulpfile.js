@@ -8,8 +8,14 @@ var sourcemaps = require('gulp-sourcemaps');
 
 gulp.task('scripts:main', function () {
     browserify(['js/main.js', 'js/dbhelper.js', 'js/restaurant_info.js'])
-        .transform("babelify", { presets: ["env"] })
+        .transform(babelify.configure({
+            presets: ['env', 'react']
+        }))
         .bundle()
         .pipe(source('main_bundle.js'))
-        .pipe(gulp.dest("./dist/js"));
-})
+        .pipe(buffer())
+        .pipe(sourcemaps.init())
+        /* .pipe(uglify()) */
+        .pipe(sourcemaps.write('maps')) // You need this if you want to continue using the stream with other plugins
+        .pipe(gulp.dest('./dist/js'));
+});

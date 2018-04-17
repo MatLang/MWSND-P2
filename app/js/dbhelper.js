@@ -1,8 +1,9 @@
+import idb from 'idb';
+
 /**
  * Common database helper functions.
  */
 
-import idb from 'idb';
 
 class DBHelper {
 
@@ -172,3 +173,5 @@ class DBHelper {
   }
 
 }
+
+module.exports = DBHelper;
