@@ -7,6 +7,9 @@ var map;
  * Initialize Google map, called from HTML.
  */
 window.initMap = () => {
+
+  console.log('DBHelper in restaurant_info.js', DBHelper);
+
   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
       console.error(error);
