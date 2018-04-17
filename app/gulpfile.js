@@ -2,12 +2,14 @@ var browserify = require('browserify');
 var gulp = require('gulp');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
+var babelify = require('babelify');
 var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 
-gulp.tasks('scripts:main', function () {
-    browserify(['js/main.js', 'js/dbhelper.js', 'js/app.js'])
-        .transform("babelify", { presets: ["env", "react"] })
+gulp.task('scripts:main', function () {
+    browserify(['js/main.js', 'js/dbhelper.js', 'js/restaurant_info.js'])
+        .transform("babelify", { presets: ["env"] })
         .bundle()
-        .pipe(gulp.dest("./bundle.js"));
+        .pipe(source('main_bundle.js'))
+        .pipe(gulp.dest("./dist/js"));
 })
