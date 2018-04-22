@@ -8,7 +8,9 @@
   <!-- Main CSS file -->
   <link rel="stylesheet" href="build/public/css/styles.css" type="text/css">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1d2731"/>
+  <meta name="theme-color" content="#1d2731" />
+  <!-- Lazyload -->
+  <!-- <script async src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-beta.1/lazyload.js"></script> -->
   <title>Restaurant Reviews</title>
 </head>
 
@@ -40,11 +42,6 @@
       </div>
       <ul id="restaurants-list"></ul>
     </section>
-    <div style="text-align: center">Icons made by
-      <a href="http://www.freepik.com" title="Freepik">Freepik</a> from
-      <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by
-      <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
-    </div>
   </main>
 
   <!-- Service Worker Registration -->
@@ -70,17 +67,14 @@
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDj5vmCjeCHhCTR_nfJs0kTYVUl6dGYUI0&libraries=places&callback=initMap"></script>
   <!-- Footer -->
   <!-- Normalize.css for better cross-browser consistency -->
-  <link async rel="stylesheet" src="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
+  <!-- <link async rel="stylesheet" src="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" /> -->
   <footer id="footer">
-    Copyright (c) 2017
+    Copyright (c) 2017 -
     <a href="/">
       <strong>Restaurant Reviews</strong>
-    </a> All Rights Reserved.
+    </a> - All Rights Reserved.
   </footer>
-
+  <!-- <link rel="stylesheet" href="build/public/css/review-styles.css" type="text/css"> -->
 </body>
 
 </html>
-
-<!-- Lazyload -->
-<script async src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-beta.1/lazyload.js"></script>

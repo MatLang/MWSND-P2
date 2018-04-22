@@ -21,6 +21,9 @@ var autoprefixer = require('gulp-autoprefixer');
 var livereload = require('gulp-livereload');
 var uglify = require('gulp-uglify');
 var minifyCss = require('gulp-minify-css');
+var critical = require('critical').stream;
+var htmlmin = require('gulp-htmlmin');
+var gzip = require('gulp-gzip');
 
 // Image compression & conversion
 
@@ -109,8 +112,18 @@ gulp.task('styles', function () {
         }))
         .pipe(minifyCss())
         .pipe(sourcemaps.write())
+        .pipe(gzip())
         .pipe(gulp.dest(BUILD_PATH + '/css'))
         .pipe(livereload());
+})
+
+// Templates
+
+gulp.task('templates', function () {
+    return gulp.src('./**/*.html')
+        .pipe(htmlmin({ collapseWhitespace: true }))
+        .pipe(gzip())
+        .pipe(gulp.dest('./'));
 })
 
 // Images
@@ -136,8 +149,9 @@ gulp.task('images', function () {
 
 gulp.task('watch', function () {
 
-    var watcher = gulp.watch(JS_PATH, ['js:browser']);
-    watcher.on('change', function (event) {
-        console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
-    });
+    require('./server.js');
+    livereload.listen();
+    gulp.watch(IMAGES_PATH, ['images']);
+    gulp.watch(JS_PATH, ['js:browser']);
+    gulp.watch(CSS_PATH, ['styles']);
 });
