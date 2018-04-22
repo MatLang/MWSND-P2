@@ -42,7 +42,7 @@ class DBHelper {
   static fetchRestaurants(callback) {
     this.getCachedMessages().then(function (data) {
       if (data.length > 0) {
-        callback(null, data);
+        return callback(null, data);
       }
 
       fetch('http://localhost:1337/restaurants', {

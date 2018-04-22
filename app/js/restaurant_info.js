@@ -27,6 +27,7 @@ window.initMap = () => {
  */
 var fetchRestaurantFromURL = (callback) => {
   if (self.restaurant) { // restaurant already fetched!
+    console.log('already fetched');
     callback(null, self.restaurant)
     return;
   }
@@ -150,6 +151,7 @@ var fillBreadcrumb = (restaurant = self.restaurant) => {
   li.innerHTML = restaurant.name;
   li.setAttribute('aria-current', 'page')
   breadcrumb.appendChild(li);
+  return breadcrumb;
 }
 
 /**
