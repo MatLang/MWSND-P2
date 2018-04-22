@@ -1,24 +1,4 @@
-/* var browserify = require('browserify');
-var gulp = require('gulp');
-var source = require('vinyl-source-stream');
-var buffer = require('vinyl-buffer');
-var babelify = require('babelify');
-var uglify = require('gulp-uglify');
-var sourcemaps = require('gulp-sourcemaps'); */
-
-/* gulp.task('scripts:main', function () {
-    browserify(['js/dbhelper.js','js/main.js'])
-        .transform(babelify.configure({
-            presets: ['env', 'react']
-        }))
-        .bundle()
-        .pipe(source('main_bundle.js'))
-        .pipe(buffer())
-        .pipe(sourcemaps.init())
-        .pipe(uglify())
-        .pipe(sourcemaps.write('maps'))
-        .pipe(gulp.dest('./dist/js'));
-}); */
+// Plugins
 
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
@@ -33,6 +13,30 @@ var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var mergeStream = require('merge-stream');
 var through = require('through2');
+var browserSync = require('browser-sync').create();
+var sass = require('gulp-sass');
+var sourcemaps = require('gulp-sourcemaps');
+var plumber = require('gulp-plumber');
+var autoprefixer = require('gulp-autoprefixer');
+var livereload = require('gulp-livereload');
+var uglify = require('gulp-uglify');
+var minifyCss = require('gulp-minify-css');
+
+// Image compression & conversion
+
+var imagemin = require('gulp-imagemin');
+var imageminPngquant = require('imagemin-pngquant');
+var imageminJpegRecompress = require('imagemin-jpeg-recompress');
+var webp = require('gulp-webp');
+
+// Paths
+
+var BUILD_PATH = 'build/public';
+var CSS_PATH = 'css/**/*.scss';
+var JS_PATH = 'js/**/*.js';
+var IMAGES_PATH = 'img/**/*.{png,jpeg,jpg,svg,gif}';
+
+/* BUNDLE */
 
 function createBundle(src) {
     if (!src.push) {
@@ -69,6 +73,7 @@ function bundle(b, outputPath) {
         // optional, remove if you dont want sourcemaps
         .pipe(plugins.sourcemaps.init({ loadMaps: true })) // loads map from browserify file
         // Add transformation tasks to the pipeline here.
+        .pipe(uglify())
         .pipe(plugins.sourcemaps.write('./')) // writes .map file
         .pipe(gulp.dest('build/public/' + outputDir));
 }
@@ -77,7 +82,7 @@ var jsBundles = {
     'js/dbhelper.js': createBundle('./js/dbhelper.js'),
     'js/main.js': createBundle('./js/main.js'),
     'js/restaurant_info.js': createBundle('./js/restaurant_info.js'),
-    /* 'sw.js': createBundle(['./public/js/sw/index.js', './public/js/sw/preroll/index.js']) */
+    /* 'sw.js': createBundle('./sw.js') */
 };
 
 gulp.task('js:browser', function () {
@@ -86,4 +91,53 @@ gulp.task('js:browser', function () {
             return bundle(jsBundles[key], key);
         })
     );
+});
+
+// STYLES
+
+gulp.task('styles', function () {
+    return gulp.src(CSS_PATH)
+        .pipe(plumber(function (err) {
+            console.log('Styles Task Error');
+            console.log(err);
+            this.emit('end');
+        }))
+        .pipe(sourcemaps.init())
+        .pipe(autoprefixer())
+        .pipe(sass({
+            outputStyle: 'compressed'
+        }))
+        .pipe(minifyCss())
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest(BUILD_PATH + '/css'))
+        .pipe(livereload());
+})
+
+// Images
+
+gulp.task('images', function () {
+    return gulp.src(IMAGES_PATH)
+        .pipe(imagemin(
+            [
+                imagemin.gifsicle(),
+                imagemin.jpegtran(),
+                imagemin.optipng(),
+                imagemin.svgo(),
+                imageminPngquant(),
+                imageminJpegRecompress()
+            ]
+        ))
+        .pipe(gulp.dest(BUILD_PATH + '/images'))
+        .pipe(webp())
+        .pipe(gulp.dest(BUILD_PATH + '/images'))
+})
+
+/* WATCH TASK + BROWSER SYNC */
+
+gulp.task('watch', function () {
+
+    var watcher = gulp.watch(JS_PATH, ['js:browser']);
+    watcher.on('change', function (event) {
+        console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
+    });
 });

@@ -7,7 +7,7 @@ var map
 var markers = []
 
 /**
- * Fetch neighborhoods and cuisines as soon as the page is loaded.
+ * Fetch neighborhoods and cuisines as soon as the page is loaded. asd
  */
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -20,6 +20,7 @@ var setEventListeners = () => {
   var neighborHoodSelect = document.getElementById('neighborhoods-select');
   neighborHoodSelect.addEventListener('change', function () {
     updateRestaurants();
+
   });
 
   var cuisineSelect = document.getElementById('cuisines-select');
@@ -46,7 +47,6 @@ var fetchNeighborhoods = () => {
  * Set neighborhoods HTML.
  */
 var fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
-  console.log(neighborhoods);
   const select = document.getElementById('neighborhoods-select');
   neighborhoods.forEach(neighborhood => {
     const option = document.createElement('option');
@@ -157,12 +157,16 @@ var fillRestaurantsHTML = (restaurants = self.restaurants) => {
 var createRestaurantHTML = (restaurant, tabIndex) => {
   const li = document.createElement('li');
 
+  const picture = document.createElement('picture');
+
   const image = document.createElement('img');
-  image.className = 'restaurant-img';
+  image.className = 'restaurant-img lazyload';
   image.tabIndex = 0;
-  image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  image.setAttribute('data-src', DBHelper.imageUrlForRestaurant(restaurant));
   image.alt = '';
-  li.append(image);
+  picture.append(image);
+  li.append(picture);
+  lazyload();
 
   const name = document.createElement('h2');
   name.innerHTML = restaurant.name;
@@ -182,6 +186,7 @@ var createRestaurantHTML = (restaurant, tabIndex) => {
   more.setAttribute('aria-label', 'Details for' + restaurant.name);
   more.href = DBHelper.urlForRestaurant(restaurant);
   li.append(more)
+
 
   return li
 }

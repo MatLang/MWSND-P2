@@ -5,10 +5,6 @@
   <meta charset='utf-8'>
   <meta http-equiv='X-UA-Compatible' content='IE=edge'>
   <meta name=viewport content="width=device-width, initial-scale=1">
-  <!-- Normalize.css for better cross-browser consistency -->
-  <link rel="stylesheet" src="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
-  <!-- Main CSS file -->
-  <link rel="stylesheet" href="css/styles.css" type="text/css">
   <title>Restaurant Reviews</title>
 </head>
 
@@ -43,7 +39,7 @@
   </main>
 
   <!-- Service Worker Registration -->
-<!--   <script>
+   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
         navigator.serviceWorker.register('/sw.js').then(function (registration) {
@@ -53,23 +49,30 @@
         });
       });
     }
-  </script> -->
+  </script>
   <!-- Scripts -->
   <!-- <script type="application/javascript" charset="utf-8" src="js/dbhelper.js"></script>
-  <script type="application/javascript" charset="utf-8" src="js/main.js"></script> -->
+    <script type="application/javascript" charset="utf-8" src="js/main.js"></script> -->
   <!-- test script import -->
 
-  <script type="text/javascript" charset="utf-8" src="build/public/js/dbhelper.js"></script>
+  <!-- <script type="text/javascript" charset="utf-8" src="build/public/js/dbhelper.js"></script> -->
   <script type="text/javascript" charset="utf-8" src="build/public/js/main.js"></script>
   <!--  -->
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDj5vmCjeCHhCTR_nfJs0kTYVUl6dGYUI0&libraries=places&callback=initMap"></script>
   <!-- Footer -->
+  <!-- Normalize.css for better cross-browser consistency -->
+  <link async rel="stylesheet" src="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
   <footer id="footer">
     Copyright (c) 2017
     <a href="/">
       <strong>Restaurant Reviews</strong>
     </a> All Rights Reserved.
   </footer>
+
 </body>
 
 </html>
+<!-- Main CSS file -->
+<link rel="stylesheet" href="build/public/css/styles.css" type="text/css">
+<!-- Lazyload -->
+<script async src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-beta.1/lazyload.js"></script>

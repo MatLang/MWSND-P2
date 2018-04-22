@@ -3,9 +3,29 @@ import idb from 'idb';
 /**
  * Common database helper functions.
  */
-
+var dbPromise;
 
 class DBHelper {
+
+  static openDatabase() {
+    return idb.open('restaurants', 1, function (upgradeDb) {
+      upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
+    });
+  }
+
+  static getCachedMessages() {
+    dbPromise = this.openDatabase();
+    return dbPromise.then(function (db) {
+
+      if (!db) return;
+
+      var tx = db.transaction('restaurants');
+      var store = tx.objectStore('restaurants');
+
+      return store.getAll();
+    });
+  }
+
 
   /**
    * Database URL.
@@ -20,19 +40,36 @@ class DBHelper {
    * Fetch all restaurants.
    */
   static fetchRestaurants(callback) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', DBHelper.DATABASE_URL);
-    xhr.onload = () => {
-      if (xhr.status === 200) { // Got a success response from server!
-        const json = JSON.parse(xhr.responseText);
-        const restaurants = json.restaurants;
-        callback(null, restaurants);
-      } else { // Oops!. Got an error from server.
-        const error = (`Request failed. Returned status of ${xhr.status}`);
-        callback(error, null);
+    this.getCachedMessages().then(function (data) {
+      if (data.length > 0) {
+        callback(null, data);
       }
-    };
-    xhr.send();
+
+      fetch('http://localhost:1337/restaurants', {
+        credentials: 'same-origin'
+      }).then(function (response) {
+        return response.json();
+      }).then(restaurants => {
+        dbPromise.then(function (db) {
+          if (!db) return;
+          var tx = db.transaction('restaurants', 'readwrite');
+          var store = tx.objectStore('restaurants');
+
+          restaurants.forEach(restaurant => store.put(restaurant));
+
+          store.openCursor(null, 'prev').then(function (cursor) {
+            return cursor.advance(30);
+          }).then(function deleteRest(cursor) {
+            if (!cursor) return;
+            cursor.delete();
+            return cursor.continue().then(deleteRest);
+          });
+        })
+        return callback(null, restaurants);
+      })
+    }).catch(err => {
+      callback(err, null);
+    });
   }
 
   /**
@@ -154,7 +191,8 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/img/${restaurant.photograph}`);
+    if (restaurant.id == 10) return (`./build/public/images/10.webp`);
+    return (`./build/public/images/${restaurant.photograph}.webp`);
   }
 
   /**
