@@ -22,6 +22,8 @@ Matthias Lang
 * [Matt Gaunt](https://developers.google.com/web/fundamentals/primers/service-workers/) for providing amazing tutorials on service workers
 * Props to all the amazing staff at Udacity
 * [jsoetens](https://github.com/jsoetens/udacity-nanodegree-mws/tree/master/mws-project-1)
+*[freepik](http.//www.freepik.com) and [flaticon.com](https://www.flaticon.com) for providing icons under the[creativecommons](http://creativecommons.org/licenses/by/3.0/) license
+
 
 
 

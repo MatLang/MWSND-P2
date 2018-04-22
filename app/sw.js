@@ -26,7 +26,9 @@ var urlsToCache = [
   './build/public/images/7.webp',
   './build/public/images/8.webp',
   './build/public/images/9.webp',
-  './build/public/images/10.webp'
+  './build/public/images/10.webp',
+  './build/public/images/cutlery.svg',
+  './manifest.json'
 ];
 
 self.addEventListener('install', function (event) {
